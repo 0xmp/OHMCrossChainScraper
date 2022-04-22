@@ -13,9 +13,10 @@ from covalent_liquidity_scraper import run_query, get_asynch_urls
 # Note: Duplicates will be removed for one address holding several assets (eg. both sOHM and gOHM) on one chain,
 # but addresses owning OHM on Ethereum and Avalanche will be counted twice. Could be cleaner.
 
-start_time = parser.parse("2021-11-01 00:00:00+00:00")
+start_time = datetime.now(tz=timezone.utc) - timedelta(days=30)
 end_time = start_time + timedelta(days=(datetime.now(tz=timezone.utc) - start_time).days)
 nb_processes = 20
+asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 if __name__ == "__main__":
 
@@ -42,7 +43,7 @@ if __name__ == "__main__":
 
             while len(start_dates) != 0:
                 [print(f"Querying page {pages[j]} for holders of {asset} on {start_dates[j]} - block {blocks_at_date[j]} ...") for j in range(len(start_dates))]
-                queries = [COVALENT_ENDPOINT + f"{chain_dict[chain_name]}/tokens/{asset_address}/token_holders/?key={API_KEY}&block-height={blocks_at_date[j]}&page-size=10000&page-number={pages[j]}" for j in range(len(start_dates))]
+                queries = [COVALENT_ENDPOINT + f"{chain_dict[chain_name]}/tokens/{asset_address}/token_holders/?key={API_KEY}&block-height={blocks_at_date[j]}&page-size=99999&page-number={pages[j]}" for j in range(len(start_dates))]
                 token_holders_results = asyncio.run(get_asynch_urls(queries))
 
                 to_remove = []
